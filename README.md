@@ -57,8 +57,10 @@ DB_DATABASE=DB_DATABASE=./database/database.sqlite
 
 Crie uma conta no https://mailtrap.io/ e adicione suas credenciais username e password aqui:
 
+```
 MAIL_USERNAME=
 MAIL_PASSWORD=
+```
 
 O restante já está configurado para o mailtrap
 
