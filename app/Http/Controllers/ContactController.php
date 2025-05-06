@@ -10,9 +10,8 @@ use Illuminate\Http\JsonResponse;
 
 class ContactController extends Controller
 {
-    public function __construct(ContactService $contactService)
+    public function __construct(private ContactService $contactService)
     {
-        $this->contactService = $contactService;
     }
 
     public function index(): JsonResponse

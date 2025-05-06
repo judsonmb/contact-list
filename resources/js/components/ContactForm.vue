@@ -1,14 +1,13 @@
 <template>
   <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
     <form @submit.prevent="submitForm" class="bg-white p-4 rounded-lg shadow-lg w-full max-w-sm space-y-3">
-      <!-- Feedback Message -->
       <div v-if="feedback.message" :class="feedbackClass" class="w-full text-white px-4 py-2 rounded-md text-center mb-4">
         {{ feedback.message }}
       </div>
 
       <h2 class="text-xl font-semibold text-center text-gray-800">Cadastro de Contato</h2>
 
-       <div>
+      <div>
         <label class="block text-gray-700 font-medium mb-1" for="name">Nome</label>
         <input
           type="text"
@@ -151,15 +150,7 @@ export default {
         type: '',
         message: '',
       },
-      states: [
-        { uf: 'AC', name: 'Acre' }, { uf: 'AL', name: 'Alagoas' }, { uf: 'AP', name: 'Amapá' }, { uf: 'AM', name: 'Amazonas' },
-        { uf: 'BA', name: 'Bahia' }, { uf: 'CE', name: 'Ceará' }, { uf: 'DF', name: 'Distrito Federal' }, { uf: 'ES', name: 'Espírito Santo' },
-        { uf: 'GO', name: 'Goiás' }, { uf: 'MA', name: 'Maranhão' }, { uf: 'MT', name: 'Mato Grosso' }, { uf: 'MS', name: 'Mato Grosso do Sul' },
-        { uf: 'MG', name: 'Minas Gerais' }, { uf: 'PA', name: 'Pará' }, { uf: 'PB', name: 'Paraíba' }, { uf: 'PR', name: 'Paraná' },
-        { uf: 'PE', name: 'Pernambuco' }, { uf: 'PI', name: 'Piauí' }, { uf: 'RJ', name: 'Rio de Janeiro' }, { uf: 'RN', name: 'Rio Grande do Norte' },
-        { uf: 'RS', name: 'Rio Grande do Sul' }, { uf: 'RO', name: 'Rondônia' }, { uf: 'RR', name: 'Roraima' }, { uf: 'SC', name: 'Santa Catarina' },
-        { uf: 'SP', name: 'São Paulo' }, { uf: 'SE', name: 'Sergipe' }, { uf: 'TO', name: 'Tocantins' },
-      ],
+      states: [],
     };
   },
   computed: {
@@ -173,14 +164,31 @@ export default {
     },
   },
   methods: {
+    async fetchStates() {
+      try {
+        const { data } = await axios.get('/api/states');
+        this.states = data.data || [];
+      } catch (error) {
+        this.feedback = {
+          type: 'error',
+          message: 'Erro ao carregar os estados.',
+        };
+      }
+    },
     async fetchAddress() {
       if (this.postal_code.length !== 8) return;
 
       try {
         const { data } = await axios.get(`https://cep.awesomeapi.com.br/json/${this.postal_code}`);
 
-        this.state = data.state || '';
-        
+        const statesList = JSON.parse(JSON.stringify(this.states));
+
+        const state = statesList.find(s => s.abbreviation === data.state);
+
+        if (state) {
+          this.states = state.abbreviation;
+        }
+
         this.city = data.city || '';
         this.cityEditable = !data.city;
 
@@ -248,6 +256,9 @@ export default {
         this.loading = false;
       }
     },
+  },
+  mounted() {
+    this.fetchStates();
   },
 };
 </script>
